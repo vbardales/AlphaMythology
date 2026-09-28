@@ -35,11 +35,14 @@ namespace AnimalBehaviours
                 }
                 Thing thing = ThingMaker.MakeThing(ThingDef.Named("MM_EggPhoenixFertilized"), null);
                 thing.stackCount = numberOfEggs;
-                GenPlace.TryPlaceThing(thing, corpse.Position, corpse.Map, ThingPlaceMode.Near, null, null, default(Rot4));
+                // The egg can merge into a stack already lying there: `thing` is then absorbed and destroyed, and the stack it
+                // joined must be the one spared from the explosion, not the emptied object.
+                Thing placedThing;
+                GenPlace.TryPlaceThing(thing, corpse.Position, corpse.Map, ThingPlaceMode.Near, out placedThing, null, null, default(Rot4));
 
                 List<Thing> ignoredThings = new List<Thing>();
 
-                ignoredThings.Add(thing);
+                ignoredThings.Add(placedThing ?? thing);
 
                 GenExplosion.DoExplosion(corpse.Position, corpse.Map, radius, DamageDefOf.Flame, corpse.InnerPawn, -1, -1, null, null, null, null, null, 0f, 1, null,false, null, 0f, 1, 0, false, null, ignoredThings);
 
